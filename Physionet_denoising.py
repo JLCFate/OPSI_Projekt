@@ -40,33 +40,19 @@ signal_ICA = ica.fit_transform(signal_noise.reshape(-1, 1)).flatten()
 
 signal_wavelet = wavelet_denoise(signal_noise)
 
+p = ['p1', 'p2', 'p3', 'p4', 'p5']
 
-fig, (p1, p2, p3, p4, p5) = plt.subplots(5, 1, figsize=(10, 10))
+fig, (p) = plt.subplots(5, 1, figsize=(10, 10))
 
-p1.plot(record.p_signal)
-p1.set_ylabel('Amplitude')
-p3.set_xlabel('Time')
-p1.set_title('Reference ECG Signal')
 
-p2.plot(signal_noise)
-p3.set_xlabel('Time')
-p2.set_ylabel('Amplitude')
-p2.set_title('Noisy ECG Signal')
+for i in range(len(p)):
+    title = ['Reference ECG Signal', 'Noisy ECG Signal', 'ECG after PCA()', 'ECG after ICA()', 'ECG after Wavelet transform']
+    source = [record.p_signal, signal_noise, signal_PCA, signal_ICA, signal_wavelet]
+    p[i].plot(source[i])
+    p[i].set_ylabel('Amplitude')
+    p[i].set_xlabel('Time')
+    p[i].set_title(title[i])
 
-p3.plot(signal_PCA)
-p3.set_xlabel('Time')
-p3.set_ylabel('Amplitude')
-p3.set_title('ECG after PCA()')
-
-p4.plot(signal_ICA)
-p4.set_xlabel('Time')
-p4.set_ylabel('Amplitude')
-p4.set_title('ECG after ICA()')
-
-p5.plot(signal_ICA)
-p5.set_xlabel('Time')
-p5.set_ylabel('Amplitude')
-p5.set_title('ECG after Wavelet transform')
 
 plt.tight_layout()
 plt.show()
