@@ -54,8 +54,6 @@ def wavelet_denoise(signal, wavelet='db4', level=2):
 
 
 def make_plot():
-    p = ['p1', 'p2', 'p3', 'p4', 'p5']
-
     fig, (p) = plt.subplots(5, 1, figsize=(10, 10))
     for i in range(len(p)):
         title = ['Reference ECG Signal', 'Noisy ECG Signal', 'ECG after PCA()', 'ECG after ICA()',
