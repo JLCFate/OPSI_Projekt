@@ -35,7 +35,7 @@ def pca_denoise(signal_clear, signal_with_noise, n):
 
 
 def ica_denoise(signal_clear, signal_with_noise, n):
-    ica = FastICA(n_components=n)
+    ica = FastICA(n_components=n, whiten='unit-variance')
     signal_clear_ica = ica.fit_transform(signal_clear)
     signal_full_ica = np.hstack([signal_with_noise[:, 1:], signal_clear_ica])
     ica_final = ica.fit_transform(signal_full_ica)
@@ -43,12 +43,12 @@ def ica_denoise(signal_clear, signal_with_noise, n):
     return ica_final
 
 
-def wavelet_denoise(signal, wavelet='db4', level=2):
-
+def wavelet_denoise(signal, wavelet='db6', level=5):
+    multi = 0.1
     values = pywt.wavedec(signal, wavelet, level=level)
-
-    threshold = np.median(np.abs(values[-level])) / 0.6 #0.6745
-    values[1:] = (pywt.threshold(i, value=threshold, mode='soft') for i in values[1:])
+    threshold = np.median(np.abs(values[-level])) / multi
+    for i in range(1, len(values)):
+        values[i] = pywt.threshold(values[i], value=threshold, mode='soft')
 
     return pywt.waverec(values, wavelet)
 
@@ -70,8 +70,8 @@ def make_plot():
 
 
 referral, record = get_data()
-get_info(record)
-signal_noise = add_noise(record.p_signal, 0.25, ch=0)
+# get_info(record)
+signal_noise = add_noise(record.p_signal, 0.08, ch=0)
 signal_ref_ch_up = np.delete(record.p_signal, 0, axis=1)
 signal_PCA = pca_denoise(signal_ref_ch_up, signal_noise, 3)
 signal_ICA = ica_denoise(signal_ref_ch_up, signal_noise, 3)
