@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.decomposition import PCA, FastICA
 import pywt
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 
 def get_data(file_name='Norwegian/ath_001'):
@@ -27,9 +28,17 @@ def add_noise(signal, amplitude, ch=0):
 
 def pca_denoise(signal_clear, signal_with_noise, n):
     pca = PCA(n_components=n)
-    signal_clear_pca = pca.fit_transform(signal_clear)
-    signal_full_pca = np.hstack([signal_with_noise[:, 1:], signal_clear_pca])
-    pca_final = pca.fit_transform(signal_full_pca)
+    # signal_clear_pca = pca.fit_transform(signal_clear)
+    # signal_full_pca = np.hstack([signal_with_noise[:, 1:], signal_clear_pca])
+    # pca_final = pca.fit_transform(signal_full_pca)
+
+    pca = PCA(n_components=n)
+    pca_final = pca.fit_transform(signal_with_noise)
+
+    mse = mean_squared_error(signal_with_noise[:, 0], pca_final[:, 0])
+    mae = mean_absolute_error(signal_with_noise[:, 0], pca_final[:, 0])
+    print('MSE PCA: ', mse)
+    print('MAE PCA:', mae)
 
     return pca_final
 
@@ -39,6 +48,15 @@ def ica_denoise(signal_clear, signal_with_noise, n):
     signal_clear_ica = ica.fit_transform(signal_clear)
     signal_full_ica = np.hstack([signal_with_noise[:, 1:], signal_clear_ica])
     ica_final = ica.fit_transform(signal_full_ica)
+
+    # ica = FastICA(n_components=n, whiten='unit-variance')
+    # ica_final = ica.fit_transform(signal_with_noise)
+    # #Zmienic n na 4 i tez jest git
+
+    mse = mean_squared_error(signal_with_noise[:, 0], ica_final[:, 0])
+    mae = mean_absolute_error(signal_with_noise[:, 0], ica_final[:, 0])
+    print('MSE ICA: ', mse)
+    print('MAE ICA:', mae)
 
     return ica_final
 
@@ -75,9 +93,18 @@ signal_noise = add_noise(record.p_signal, 0.08, ch=0)
 signal_ref_ch_up = np.delete(record.p_signal, 0, axis=1)
 signal_PCA = pca_denoise(signal_ref_ch_up, signal_noise, 3)
 signal_ICA = ica_denoise(signal_ref_ch_up, signal_noise, 3)
-
-
 signal_wavelet = wavelet_denoise(signal_noise)
+
+mse = mean_squared_error(signal_noise[:, 0], signal_wavelet[:, 0])
+mae = mean_absolute_error(signal_noise[:, 0], signal_wavelet[:, 0])
+print('MSE wavelet: ', mse)
+print('MAE wavelet:', mae)
 
 make_plot()
 
+# plt.plot(signal_ICA)
+# # plt.set_ylabel('Amplitude')
+# # plt.set_xlabel('Time')
+# plt.suptitle("ECG after Wavelet transform")
+# plt.tight_layout()
+# plt.show()
