@@ -21,13 +21,13 @@ def get_info(rec):
 
 def add_noise(signal, amplitude, ch=0):
     noise = np.random.normal(scale=amplitude, size=len(signal[:, ch]))
-    signal[:, ch] += noise
+    signal[:, ch] = noise
 
     return signal
 
 
 def pca_denoise(signal_clear, signal_with_noise, n):
-    pca = PCA(n_components=n)
+    # pca = PCA(n_components=n)
     # signal_clear_pca = pca.fit_transform(signal_clear)
     # signal_full_pca = np.hstack([signal_with_noise[:, 1:], signal_clear_pca])
     # pca_final = pca.fit_transform(signal_full_pca)
@@ -89,16 +89,16 @@ def make_plot():
 
 referral, record = get_data()
 # get_info(record)
-signal_noise = add_noise(record.p_signal, 0.08, ch=0)
+signal_noise = add_noise(record.p_signal, 0.2, ch=0)
 signal_ref_ch_up = np.delete(record.p_signal, 0, axis=1)
 signal_PCA = pca_denoise(signal_ref_ch_up, signal_noise, 3)
 signal_ICA = ica_denoise(signal_ref_ch_up, signal_noise, 3)
 signal_wavelet = wavelet_denoise(signal_noise)
 
-mse = mean_squared_error(signal_noise[:, 0], signal_wavelet[:, 0])
-mae = mean_absolute_error(signal_noise[:, 0], signal_wavelet[:, 0])
-print('MSE wavelet: ', mse)
-print('MAE wavelet:', mae)
+mse3 = mean_squared_error(signal_noise[:, 0], signal_wavelet[:, 0])
+mae3 = mean_absolute_error(signal_noise[:, 0], signal_wavelet[:, 0])
+print('MSE wavelet: ', mse3)
+print('MAE wavelet:', mae3)
 
 make_plot()
 
